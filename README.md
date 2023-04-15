@@ -34,3 +34,11 @@ All experiments were carried on a server with one NVIDIA V100 GPU, 10 CPU cores,
 
 Our implemention is based on the PyTorch implementation of RotatE model provided [here](https://github.com/DeepGraphLearning/KnowledgeGraphEmbedding).
 This research was enabled in part by support provided by [Calcul Québec](https://www.calculquebec.ca/en/) and [Compute Canada](www.computecanada.ca).
+
+
+## command :
+
+```bash
+python -u codes/run.py --do_train --do_valid --data_path data/wn18rr --model TransE -n 32 -b 64 -d 50 -g 1.0 -a 1.0 -lr 0.0001 --max_steps 10000 -save models/TransE_wn18rr_0 --test_batch_size 16 -khop 3 -nrw 0
+```
+

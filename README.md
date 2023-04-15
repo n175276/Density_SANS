@@ -39,6 +39,6 @@ This research was enabled in part by support provided by [Calcul Québec](https:
 ## command :
 
 ```bash
-python -u codes/run.py --do_train --do_valid --data_path data/wn18rr --model TransE -n 32 -b 64 -d 50 -g 1.0 -a 1.0 -lr 0.0001 --max_steps 10000 -save models/TransE_wn18rr_0 --test_batch_size 16 -khop 3 -nrw 0
+python -u codes/run.py --do_train --do_valid --data_path data/FB15k-237 --model TransE -n 32 -b 64 -d 50 -g 1.0 -a 1.0 -lr 0.0001 --max_steps 10000 -save models/TransE_FB15k-237_rw --test_batch_size 16 -khop 2 -nrw 10
 ```
 

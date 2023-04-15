@@ -161,20 +161,28 @@ class TrainDataset(Dataset):
                     if (cur_den > max_den):
                         max_den = cur_den
                         max_den_node = neighbour[j]
-                neighbour = d_mat[max_den_node]
-                walker = neighbour[0]
-                k_mat[en_t, walker] = 1
-                # den_node = d_mat[en_t]
-                # for j in range(0,len(den_node.indices)):
-                #     walker = den_node.indices[j]
-                # print(den_node)
-                # for _ in range(0, n_rw):
-                #     walker = i
-                #     for _ in range(0, k_hop):
-                #         idx = np.random.randint(len(neighbors.indices))
-                #         walker = neighbors.indices[idx]
-                #         neighbors = a_mat[walker]
-                #     k_mat[i, walker] += 1      
+                neighbour1 = d_mat[max_den_node]
+                if len(neighbour1) == 0:
+                    randomly_sampled += 1
+                    walker = np.random.randint(self.nentity)
+                    k_mat[en_t, walker] = 1
+                else:
+                    # Selecting Nodes Based on Common neighbour with head node                
+                    # compairing neighbour of two nodes
+                    # list(set(list1).intersection(list2))
+                    # list1 = neighbour
+                    # list3 = d_mat[max_den_nei_s_nodes[i]] : i = no of degree of max den node
+                    max_den = 0
+                    max_den_node = neighbour1[0]
+                    for k in range(len(neighbour1)):
+                        list2 = d_mat[neighbour1[k]]
+                        cur_den = len(list(set(neighbour).intersection(list2)))
+                        if (cur_den > max_den):
+                            max_den = cur_den
+                            max_den_node = neighbour[j]
+                    # walker = neighbour[0]
+                    k_mat[en_t, max_den_node] = 1
+                 
 
 
         logging.info(f'randomly_sampled: {randomly_sampled}')

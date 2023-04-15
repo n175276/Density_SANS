@@ -24,11 +24,30 @@ class TrainDataset(Dataset):
     def _get_adj_mat(self):
         a_mat = sparse.dok_matrix((self.nentity, self.nentity))
         for (h, _, t) in self.triples:
-            a_mat[t, h] = 1
+            # a_mat[t, h] = 1
             a_mat[h, t] = 1
 
         a_mat = a_mat.tocsr()
         return a_mat
+
+    def density_node(self):
+        print("In den")
+        d_mat = {}
+        for (h, _, t) in self.triples:
+            if d_mat.get(h) == None:
+                d_mat[h] = []
+            if d_mat.get(t) == None:
+                d_mat[t] = []
+            if (t == h):
+                pass
+            else:
+                arr1 = d_mat[h]
+                arr2 = d_mat[t]
+                arr1.append(t)
+                arr2.append(h)
+                d_mat[h] = arr1
+                d_mat[t] = arr2
+        return d_mat
 
     @time_it
     def build_k_hop(self, k_hop, dataset_name):
@@ -87,12 +106,83 @@ class TrainDataset(Dataset):
                     k_mat[i, walker] += 1
         logging.info(f'randomly_sampled: {randomly_sampled}')
         k_mat = k_mat.tocsr()
-
+        
         sparse.save_npz(save_path, k_mat)
 
         return k_mat
+    
+    def den_node(self, a_mat):
+        d_mat = sparse.dok_matrix((self.nentity,1))
+        for i in range(self.nentity):
+            neighbors = a_mat[i]
+            if len(neighbors.indices) == 0:
+                pass
+            else:
+                max_den = 0
+                node = neighbors.indices[0]
+                for j in range(len(neighbors.indices)):
+                    den = len(a_mat[j].indices)
+                    if( den > max_den):
+                        max_den = den
+                        node = neighbors.indices[j]
+                d_mat[i] = node
+        return d_mat
 
-    def __init__(self, triples, nentity, nrelation, negative_sample_size, mode, k_hop, n_rw, dsn):
+
+    def build_density_walks(self, dw, dataset_name):
+        if dw == 0: 
+            return None
+        save_path = f'cached_matrices/matrix_{dataset_name}_d{dw}.npz'
+
+        if os.path.exists(save_path):
+            logging.info(f'Using cached matrix: {save_path}')
+            k_mat = sparse.load_npz(save_path)
+            return k_mat
+        
+        # a_mat = self._get_adj_mat()
+        d_mat = self.density_node() 
+        # print(d_mat)
+        # exit()
+        k_mat = sparse.dok_matrix((self.nentity, self.nentity))
+        randomly_sampled = 0
+
+        for en_t in range(self.nentity):
+            # neighbors = d_mat[en_t]
+            if d_mat.get(en_t) == None:
+                randomly_sampled += 1
+                walker = np.random.randint(self.nentity)
+                k_mat[en_t, walker] = 1
+            else:
+                neighbour = d_mat[en_t]
+                max_den = 0
+                max_den_node = -1
+                for j in range(len(neighbour)):
+                    cur_den = len(d_mat[neighbour[j]])
+                    if (cur_den > max_den):
+                        max_den = cur_den
+                        max_den_node = neighbour[j]
+                neighbour = d_mat[max_den_node]
+                walker = neighbour[0]
+                k_mat[en_t, walker] = 1
+                # den_node = d_mat[en_t]
+                # for j in range(0,len(den_node.indices)):
+                #     walker = den_node.indices[j]
+                # print(den_node)
+                # for _ in range(0, n_rw):
+                #     walker = i
+                #     for _ in range(0, k_hop):
+                #         idx = np.random.randint(len(neighbors.indices))
+                #         walker = neighbors.indices[idx]
+                #         neighbors = a_mat[walker]
+                #     k_mat[i, walker] += 1      
+
+
+        logging.info(f'randomly_sampled: {randomly_sampled}')
+        k_mat = k_mat.tocsr()
+        sparse.save_npz(save_path, k_mat)
+        return k_mat
+
+    def __init__(self, triples, nentity, nrelation, negative_sample_size, mode, k_hop, n_rw, dw, dsn):
         self.len = len(triples)
         self.triples = triples
         self.triple_set = set(triples)
@@ -106,6 +196,8 @@ class TrainDataset(Dataset):
 
         if n_rw == 0:
             self.k_neighbors = self.build_k_hop(k_hop, dataset_name=self.dsn)
+        elif dw == 1:
+            self.k_neighbors = self.build_density_walks(dw = dw, dataset_name=self.dsn)    
         else:
             self.k_neighbors = self.build_k_rw(n_rw=n_rw, k_hop=k_hop, dataset_name=self.dsn)
 

@@ -38,6 +38,7 @@ def parse_args(args=None):
     parser.add_argument('-a', '--adversarial_temperature', default=1.0, type=float)
     parser.add_argument('-khop', '--negative_k_hop_sampling', default=0, type=int)
     parser.add_argument('-nrw', '--negative_n_random_walks', default=0, type=int)
+    parser.add_argument('-dw', '--density_walks', default=0, type=int)
     parser.add_argument('-b', '--batch_size', default=1024, type=int)
     parser.add_argument('-r', '--regularization', default=0.0, type=float)
     parser.add_argument('--test_batch_size', default=4, type=int, help='valid/test batch size')
@@ -231,6 +232,7 @@ def main(args):
                          'head-batch',
                          args.negative_k_hop_sampling,
                          args.negative_n_random_walks,
+                         args.density_walks,
                          dsn=args.data_path),
             batch_size=args.batch_size,
             shuffle=True,
@@ -246,6 +248,7 @@ def main(args):
                          'tail-batch',
                          args.negative_k_hop_sampling,
                          args.negative_n_random_walks,
+                         args.density_walks,
                          dsn=args.data_path),
             batch_size=args.batch_size,
             shuffle=True,

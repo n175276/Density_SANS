@@ -44,5 +44,5 @@ python -u codes/run.py --do_train --do_valid --data_path data/FB15k-237 --model 
 ## Updated
 
 ```bash
-python -u codes/run.py --do_train --do_valid --data_path data/FB15k-237 --model TransE -n 32 -b 64 -d 50 -g 1.0 -a 1.0 -lr 0.0001 --max_steps 10000 -save models/TransE_FB15k-237_d5 --test_batch_size 16 -khop 2 -nrw 10 -dw 5 -cpu 4
+python -u codes/run.py --do_train --do_valid --data_path data/FB15k-237 --model TransE -n 32 -b 64 -d 50 -g 1.0 -a 1.0 -lr 0.0001 --max_steps 10000 -save models/TransE_FB15k-237_d1 --test_batch_size 16 -khop 2 -nrw 10 -dw 1 -cpu 4
 ```
